@@ -65,6 +65,8 @@ namespace FileFormat
 
         private static string ProcessText(string srcText)
         {
+            return srcText;
+
             // LF (Line feed, 0x0A, \r)
             // CR (Carriage return, 0x0D, \n)
 
@@ -110,7 +112,7 @@ namespace FileFormat
 
         static void SaveText(string srcFile, string dstFile, string text)
         {
-            var utf8Encoding = new UTF8Encoding();
+            var utf8Encoding = new UTF8Encoding(encoderShouldEmitUTF8Identifier: false);
 
             var srcBytes = File.ReadAllBytes(srcFile);
             var dstBytes = utf8Encoding.GetBytes(text);
@@ -126,7 +128,7 @@ namespace FileFormat
             {
                 var dstPath = Path.GetDirectoryName(dstFile);
                 Directory.CreateDirectory(dstPath);
-                System.IO.File.WriteAllText(dstFile, text, Encoding.UTF8);
+                System.IO.File.WriteAllText(dstFile, text, utf8Encoding);
             }
         }
 
@@ -144,6 +146,9 @@ namespace FileFormat
             foreach (var srcFile in srcFiles)
             {
                 var encoding = GetTextEncoding(srcFile, charsetDetector, srcEncoding);
+                if (encoding == srcEncoding || encoding == Encoding.UTF8 || encoding == Encoding.UTF8 || encoding == Encoding.ASCII)
+                    continue;
+
                 var dstFile = srcFile.Replace(srcDir, dstDir);
                 var srcText = File.ReadAllText(srcFile, encoding);
                 var dstText = ProcessText(srcText);
